@@ -1,0 +1,46 @@
+stack_name: {{ project_code }}-report-emr-cluster
+template_path: !service_catalog_product_template
+sceptre_user_data:
+  ProductName: 'emr'
+  ProductVersion: '11.5.0'
+  ProvisionedProductName: {{ project_code }}-reporting-cluster.emr
+  ProductParameters:
+    SealId: {{ stack_group_config.seal_id }}
+    ClusterName: {{ stack_group_config.seal_id }}-reporting-emr
+    HCDCluster: 'NO'
+    KMSKey: !provisioned_product_output resource/s3-trusted-bucket.yaml::KeyArn
+    AccountClassification: '/account/classification'
+    AMITagName: 'osbf.img.custom.name'
+    AMITagValue: 'jpmc-amzn-linux-1-emr-tsee-hbf'
+    InstanceConfigurationType: 'InstanceGroup'
+    ClusterSubnetID: !subnet_ids PublicSubnet02
+    TypeOfInstance: 'm5.2xlarge'
+    CoreInstanceCount: '1'
+    TaskInstanceCount: '1'
+    PurchaseOptions: 'ON_DEMAND'
+    RootVolumeSize: '20'
+    AttachedEBSVolumeSize: '32'
+    AttachedEBSVolumeType: 'General-Purpose-SSD'
+    VolumesPerInstance: '1'
+    TransientCluster: 'NO'
+    StepConcurrencyLevel: '5'
+    EnableConsistentView: 'false'
+    GlueAsMetastore: 'YES'
+    EnableKerberosAuthentication: 'NO'
+    EnableOnPremAccessToEMRWebUIs: 'false'
+    EnableAutoScaling: 'YES'
+    EnableMultipleMasterNodes: 'NO'
+    ScaleUpMemoryThreshold: '30'
+    ScaleDownMemoryThreshold: '75'
+    MaxCoreInstanceCount: '3'
+    MaxTaskInstanceCount: '3'
+
+hooks:
+  after_create:
+    - !print_outputs
+    - !enviroment_variable_export EMR_CLUSTER_ID::EMRClusterID
+  after_update:
+    - !print_outputs
+    - !enviroment_variable_export EMR_CLUSTER_ID::EMRClusterID
+
+stack_timeout: 30
