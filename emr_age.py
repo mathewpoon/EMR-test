@@ -13,4 +13,4 @@ def lambda_handler(event, context):
     )
     
     for cluster in response['Clusters']:
-      print(cluster['Id'])
+      print(cluster['Id'], ":", cluster['Name'], ":", cluster['Status']['State'])
